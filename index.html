@@ -1,0 +1,796 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b1020">
+<title>Life RPG</title>
+<style>
+:root{--bg:#0b1020;--card:#121936;--card2:#171e3a;--text:#f7f7ff;--muted:#9ba3c7;--purple:#7c5cff;--green:#48e6a1;--gold:#ffc857;--orange:#ff8a3d;--red:#ff6b6b;--blue:#5ac8ff}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(circle at 20% 0,#21184d 0,#0b1020 42%);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;min-height:100vh}
+.app{max-width:600px;margin:auto;min-height:100vh;padding-bottom:100px}
+header{display:flex;align-items:center;justify-content:space-between;padding:16px 16px 6px}
+.logo{font-weight:1000;letter-spacing:2px}.icons{display:flex;gap:4px}.icons button{background:none;border:0;color:white;font-size:19px;padding:6px}
+main{padding:8px 14px}
+.card{background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.07);border-radius:22px;padding:16px;margin-bottom:12px;box-shadow:0 10px 35px rgba(0,0,0,.12)}
+.level{background:linear-gradient(135deg,#261d58,#121936);border-color:#6f55e855}
+.row{display:flex;align-items:center;justify-content:space-between}
+.eyebrow{font-size:11px;color:#aab0cf;letter-spacing:1.6px;font-weight:900}
+.levelnum{font-size:29px;font-weight:1000;margin-top:3px}
+.badge{width:56px;height:56px;border-radius:50%;background:var(--purple);display:grid;place-items:center;font-weight:1000;font-size:20px}
+.bar{height:12px;border-radius:20px;background:#2a3150;overflow:hidden}
+.fill{height:100%;background:linear-gradient(90deg,#7c5cff,#a77cff);width:0%;transition:width .7s cubic-bezier(.2,.8,.2,1)}
+.small{font-size:12px;color:var(--muted)}
+.bigpct{font-size:23px;font-weight:1000}
+.section{display:flex;justify-content:space-between;align-items:center;margin:18px 2px 8px;font-size:12px;font-weight:1000;letter-spacing:1.5px}
+.banner{background:#1b2547;border:1px solid #ffffff10;border-radius:18px;padding:14px;margin-bottom:12px}
+.banner b{display:block;margin-bottom:4px}
+
+/* excel-like date header */
+.excelbar{display:flex;align-items:center;gap:8px;background:#0e1430;border:1px solid #ffffff14;border-radius:12px;padding:8px 10px;margin-bottom:10px;font-family:'Courier New',monospace}
+.excelday{background:#232c54;color:#c9cdfb;font-weight:800;font-size:11px;letter-spacing:1px;padding:4px 8px;border-radius:6px}
+.exceldate{font-weight:700;font-size:13px;color:#e8e9ff}
+.datenav{display:flex;align-items:center;gap:6px;margin-bottom:10px}
+.datenav button{background:#171e3a;border:1px solid #ffffff14;color:white;border-radius:10px;width:34px;height:34px;font-size:15px}
+.datenav input[type=date]{flex:1;margin:0;padding:8px 10px;font-family:inherit;font-size:13px}
+.datenav .todaybtn{width:auto;padding:0 12px;font-size:11px;font-weight:800;color:var(--purple)}
+
+.habit{display:flex;align-items:center;gap:12px;padding:13px;border-radius:18px;background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.06);margin:8px 0;transition:.25s}
+.habit.done{background:#14372e;border-color:#48e6a133}
+.habit.disabled{opacity:.5}
+.habitmain{display:flex;align-items:center;gap:12px;flex:1;cursor:pointer;min-width:0}
+.emoji{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:#ffffff0d;font-size:22px;flex:none}
+.done .emoji{background:#48e6a122}
+.habitname{font-weight:850;font-size:14px}
+.xp{color:var(--gold);font-weight:1000;font-size:12px;white-space:nowrap;flex:none}
+.done .xp{color:var(--green)}
+.tags{display:flex;gap:6px;margin-top:3px;flex-wrap:wrap}
+.tag{font-size:10px;padding:2px 7px;border-radius:8px;background:#ffffff10;color:var(--muted);font-weight:800}
+.minbtn{background:none;border:1px dashed #ffffff30;color:var(--muted);font-size:10px;font-weight:800;border-radius:8px;padding:3px 7px;margin-top:4px;cursor:pointer;align-self:flex-start}
+.habitrow{display:flex;flex-direction:column;flex:1;min-width:0}
+.iconbtns{display:flex;gap:4px;flex:none}
+.iconbtns button{background:none;border:0;color:var(--muted);font-size:15px;padding:4px}
+
+.momentum{background:linear-gradient(135deg,#42200f,#21130c)}.fire{font-size:32px}
+
+.tabbar{position:fixed;bottom:0;left:0;right:0;background:#0d1226ee;backdrop-filter:blur(14px);border-top:1px solid #ffffff12;z-index:5;overflow-x:auto;white-space:nowrap}
+.tabbarin{display:inline-flex;min-width:100%;max-width:600px;margin:auto}
+.tabbtn{background:none;border:0;color:#7f87aa;padding:10px 14px 8px;font-size:11px;font-weight:800;flex:none;display:flex;flex-direction:column;align-items:center;gap:2px}
+.tabbtn.active{color:white}
+.tabbtn .ico{font-size:19px}
+.addtabbtn{background:none;border:0;color:var(--purple);padding:10px 16px 8px;font-size:20px;font-weight:900;flex:none}
+
+.quest{padding:16px;background:rgba(255,255,255,.055);border:1px solid #ffffff0b;border-radius:20px;margin:10px 0}
+.reward{display:flex;gap:12px;align-items:center}
+.lock{font-size:22px;width:32px}
+.green{color:var(--green)}.gold{color:var(--gold)}.purple{color:#a98dff}.red{color:var(--red)}
+.btn{border:0;border-radius:14px;background:var(--purple);color:white;padding:12px 17px;font-weight:900;cursor:pointer}
+.btn.ghost{background:#ffffff12}
+.btn.danger{background:var(--red)}
+.btn.block{width:100%}
+.fab{position:fixed;right:18px;bottom:78px;border:0;width:52px;height:52px;border-radius:50%;background:var(--purple);color:#fff;font-size:26px;box-shadow:0 8px 30px #0008;z-index:6}
+.toast{position:fixed;left:50%;bottom:92px;transform:translate(-50%,20px);background:#171e3a;border:1px solid #ffffff22;border-radius:16px;padding:12px 16px;font-weight:900;opacity:0;pointer-events:none;transition:.3s;z-index:10;max-width:90vw;text-align:center}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.modal{position:fixed;inset:0;background:#0009;display:none;align-items:flex-end;justify-content:center;z-index:20}
+.sheet{background:#141a31;border-radius:24px 24px 0 0;padding:20px;max-width:600px;width:100%;max-height:88vh;overflow:auto}
+input,select,textarea{width:100%;padding:12px;border-radius:12px;background:#0c1124;color:white;border:1px solid #ffffff18;margin:5px 0 12px;font-family:inherit;font-size:14px}
+textarea{resize:vertical;min-height:60px}
+label{font-size:11px;color:#aab0cf;font-weight:800;text-transform:uppercase;letter-spacing:.5px}
+.confetti{position:fixed;inset:0;pointer-events:none;z-index:15;overflow:hidden}
+.piece{position:absolute;width:8px;height:14px;animation:fall 850ms ease-out forwards}
+@keyframes fall{0%{transform:translateY(0) rotate(0);opacity:1}100%{transform:translateY(85vh) rotate(600deg);opacity:0}}
+.toggle{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #ffffff10}
+.switch{width:44px;height:26px;border-radius:20px;background:#2a3150;position:relative;cursor:pointer;flex:none}
+.switch.on{background:var(--purple)}
+.switch i{position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:white;transition:.2s;font-style:normal}
+.switch.on i{left:21px}
+.levelup{position:fixed;inset:0;background:#0b1020ee;z-index:30;display:none;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:20px}
+.levelup h1{font-size:42px;margin:10px 0 4px;background:linear-gradient(90deg,#ffc857,#ff8a3d);-webkit-background-clip:text;background-clip:text;color:transparent}
+.emptystate{text-align:center;padding:30px 10px;color:var(--muted)}
+.emptystate .big{font-size:38px;margin-bottom:8px}
+.listrow{display:flex;align-items:center;gap:12px;padding:12px;border-radius:16px;background:rgba(255,255,255,.05);border:1px solid #ffffff0a;margin:7px 0}
+.listrow.done .lname{text-decoration:line-through;color:var(--muted)}
+.checkcirc{width:26px;height:26px;border:2px solid #ffffff33;border-radius:50%;display:grid;place-items:center;flex:none;cursor:pointer;font-size:13px;font-weight:900}
+.listrow.done .checkcirc{background:var(--green);border-color:var(--green);color:#06150f}
+.lname{flex:1;font-weight:750;font-size:14px}
+.ldue{font-size:11px;color:var(--orange)}
+.delbtn{background:none;border:0;color:#6b7399;font-size:16px;flex:none;padding:4px}
+.goalcard{padding:16px}
+.goalcard h3{margin:2px 0 6px}
+.milestone{display:flex;align-items:center;gap:8px;padding:6px 0;font-size:13px}
+.milestone.done{color:var(--muted);text-decoration:line-through}
+.finrow{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid #ffffff0c}
+.finamt.income{color:var(--green);font-weight:900}
+.finamt.expense{color:var(--red);font-weight:900}
+.summarygrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px}
+.summarygrid .box{background:#171e3a;border-radius:14px;padding:12px 8px;text-align:center}
+.summarygrid .box .v{font-weight:1000;font-size:16px}
+.historyday{padding:12px 0;border-bottom:1px solid #ffffff0c}
+.historyhabit{display:flex;justify-content:space-between;font-size:12px;padding:2px 0;color:var(--muted)}
+.historyhabit.ok{color:var(--green)}
+.morebtn{display:flex;align-items:center;justify-content:space-between;padding:14px 4px;border-bottom:1px solid #ffffff0c;cursor:pointer}
+@media(min-width:700px){body{padding:20px}.app{border:1px solid #ffffff10;border-radius:28px;background:#0b1020;overflow:hidden;min-height:calc(100vh - 40px)}}
+</style>
+</head>
+<body>
+<div class="app">
+<header><div class="logo">LIFE RPG</div><div class="icons"><button onclick="setTab('more')" title="More">⋯</button></div></header>
+<main id="main"></main>
+</div>
+
+<div class="tabbar"><div class="tabbarin" id="tabbarin"></div></div>
+<button class="fab" id="fab" onclick="handleFab()">+</button>
+<div class="toast" id="toast"></div><div class="confetti" id="confetti"></div>
+
+<div class="modal" id="sheetModal" onclick="if(event.target.id==='sheetModal')closeSheet()"><div class="sheet" id="sheetBody"></div></div>
+<input type="file" id="importFile" accept="application/json" style="display:none" onchange="doImport(event)">
+
+<div class="levelup" id="levelupScreen">
+<div style="font-size:56px">🏆</div>
+<div class="eyebrow" style="color:#ffc857">LEVEL UP</div>
+<h1 id="luLevel">LEVEL 5</h1>
+<div class="small" id="luReward" style="margin-bottom:22px">New sound unlocked</div>
+<button class="btn" onclick="document.getElementById('levelupScreen').style.display='none'">CONTINUE</button>
+</div>
+
+<script>
+/* ============ CONSTANTS ============ */
+const KEY='lifeRpgWebV3';
+const OLDKEY='lifeRpgWebV2';
+const MAX_ACTIVE=7;
+const CATEGORIES=['Health','Learning','Cleaning','Career','Mind','Finance','Sleep','Other'];
+const SOUND_PACKS={
+  ding:{label:'Ding',freqs:[880],type:'sine'},
+  coin:{label:'Coin',freqs:[988,1319],type:'square'},
+  sparkle:{label:'Sparkle',freqs:[1200,1500,1800],type:'sine'},
+  achievement:{label:'Achievement',freqs:[523,659,784,1047],type:'sine'},
+  power:{label:'Power Up',freqs:[220,440,880],type:'sawtooth'},
+  fire:{label:'Fire',freqs:[300,150,300],type:'square'},
+  celebration:{label:'Celebration',freqs:[523,659,784,988,1319],type:'triangle'}
+};
+const FIXED_TABS=[
+  {id:'habits',label:'Habits',icon:'⌂'},
+  {id:'appointments',label:'Appointments',icon:'📅'},
+  {id:'urgent',label:'Urgent',icon:'⚡'},
+  {id:'alltasks',label:'All Tasks',icon:'☰'},
+  {id:'yeargoal',label:'Year Goal',icon:'🎯'},
+  {id:'finance',label:'Financial',icon:'💰'},
+  {id:'more',label:'More',icon:'⋯'}
+];
+
+/* ============ STATE / MIGRATION ============ */
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
+function pad(n){return n<10?'0'+n:''+n}
+function isoDate(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())}
+function todayStr(){return isoDate(new Date())}
+function dayNameShort(iso){const d=new Date(iso+'T00:00:00');return ['SUN','MON','TUE','WED','THU','FRI','SAT'][d.getDay()]}
+function dayNameLong(iso){const d=new Date(iso+'T00:00:00');return ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][d.getDay()]}
+function fmtDate(iso){const p=iso.split('-');return p[2]+'/'+p[1]+'/'+p[0]}
+function addDays(iso,n){let d=new Date(iso+'T00:00:00');d.setDate(d.getDate()+n);return isoDate(d)}
+function daysBetween(a,b){let da=new Date(a+'T00:00:00'),db=new Date(b+'T00:00:00');return Math.round((db-da)/86400000)}
+
+function defaultState(){
+  return {
+    xp:0,streak:0,best:0,lastDay:'',comboToday:0,comboBonusGiven:{},questClaimedFor:'',missedYesterday:false,
+    viewDate:todayStr(),
+    settings:{sound:true,anim:true,soundPack:'ding'},
+    habits:[
+      {id:'water',name:'Drink Water',emoji:'💧',category:'Health',xp:5,weight:5,done:false,minMin:2,normMin:10,sound:''},
+      {id:'walk',name:'Walk for 20 minutes',emoji:'🚶',category:'Health',xp:10,weight:5,done:false,minMin:5,normMin:20,sound:''},
+      {id:'study',name:'Study Python',emoji:'📚',category:'Learning',xp:20,weight:8,done:false,minMin:5,normMin:60,sound:''},
+      {id:'clean',name:'Clean one thing',emoji:'🧹',category:'Cleaning',xp:10,weight:4,done:false,minMin:5,normMin:15,sound:''},
+      {id:'sleep',name:'Start sleep routine',emoji:'🌙',category:'Sleep',xp:15,weight:6,done:false,minMin:5,normMin:15,sound:''}
+    ],
+    unlockedThemes:['Midnight'],unlockedSounds:['Classic Ding'],
+    history:{},
+    appointments:[],
+    urgentTasks:[],
+    allTasks:[],
+    yearGoals:[],
+    finance:{entries:[]},
+    customTabs:[]
+  };
+}
+function migrateFromV2(){
+  try{
+    let old=JSON.parse(localStorage.getItem(OLDKEY)||'null');
+    if(!old)return null;
+    let s=defaultState();
+    s.xp=old.xp||0;s.streak=old.streak||0;s.best=old.best||0;s.lastDay=old.lastDay||'';
+    s.settings=old.settings||s.settings;
+    if(!s.settings.soundPack)s.settings.soundPack='ding';
+    s.unlockedThemes=old.unlockedThemes||s.unlockedThemes;
+    s.unlockedSounds=old.unlockedSounds||s.unlockedSounds;
+    if(old.habits&&old.habits.length){
+      s.habits=old.habits.map(h=>({
+        id:h.id,name:h.name,emoji:h.emoji,category:h.category||'Other',
+        xp:h.xp||10,weight:h.weight||5,done:!!h.done,
+        minMin:h.minMin||5,normMin:h.normMin||h.normMin===0?h.normMin:20,sound:''
+      }));
+    }
+    return s;
+  }catch(e){return null}
+}
+let state=JSON.parse(localStorage.getItem(KEY)||'null');
+if(!state){
+  state=migrateFromV2()||defaultState();
+  save();
+}
+/* fill any missing fields from future updates */
+let dstate=defaultState();
+for(const k in dstate){ if(state[k]===undefined) state[k]=dstate[k]; }
+if(!state.settings.soundPack)state.settings.soundPack='ding';
+
+let tab='habits';
+function save(){localStorage.setItem(KEY,JSON.stringify(state))}
+
+/* ============ DAILY ROLLOVER + HISTORY SNAPSHOT ============ */
+(function dailyReset(){
+  const t=todayStr();
+  if(state.lastDay && state.lastDay!==t){
+    const totalW=state.habits.reduce((a,h)=>a+(h.weight||1),0)||1;
+    const doneW=state.habits.filter(h=>h.done).reduce((a,h)=>a+(h.weight||1),0);
+    state.history[state.lastDay]={
+      percent:Math.round(doneW/totalW*100),
+      xpEarned:0,
+      habits:state.habits.map(h=>({id:h.id,name:h.name,done:h.done}))
+    };
+    let gap=daysBetween(state.lastDay,t);
+    state.missedYesterday=gap>1;
+    state.habits.forEach(h=>h.done=false);
+    state.comboToday=0;state.comboBonusGiven={};
+    if(gap>1){state.streak=0}
+    if(state.viewDate===state.lastDay || daysBetween(state.viewDate,t)<0===false && state.viewDate < t)
+      {/* keep viewDate as-is unless it was pinned to old today */}
+    if(!state.viewDatePinnedManually) state.viewDate=t;
+    save();
+  }
+  if(!state.lastDay){state.lastDay=t;save();}
+})();
+
+function level(){return 1+Math.floor(state.xp/100)}
+
+/* ============ SOUND ============ */
+let actx=null;
+function ac(){if(!actx)actx=new (window.AudioContext||window.webkitAudioContext)();return actx}
+function beep(freqs,dur,type){
+  if(!state.settings.sound)return;
+  try{
+    let c=ac(),t=c.currentTime;
+    freqs.forEach((f,i)=>{
+      let o=c.createOscillator(),g=c.createGain();
+      o.type=type||'sine';o.frequency.value=f;
+      o.connect(g);g.connect(c.destination);
+      let start=t+i*0.09;
+      g.gain.setValueAtTime(0.0001,start);
+      g.gain.exponentialRampToValueAtTime(0.18,start+0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001,start+dur);
+      o.start(start);o.stop(start+dur+0.05);
+    });
+  }catch(e){}
+}
+function playPack(name){const p=SOUND_PACKS[name]||SOUND_PACKS.ding;beep(p.freqs,0.2,p.type)}
+function previewSound(name){playPack(name)}
+
+/* ============ HABIT COMPLETION ============ */
+function complete(id){
+  let h=state.habits.find(x=>x.id===id);if(!h||h.done)return;
+  if(state.viewDate!==todayStr()){toast('You can only complete habits for today.');return}
+  finishHabit(h,h.xp,false);
+}
+function completeMinimum(id){
+  let h=state.habits.find(x=>x.id===id);if(!h||h.done)return;
+  if(state.viewDate!==todayStr()){toast('You can only complete habits for today.');return}
+  let minXp=Math.max(3,Math.round(h.xp*0.5));
+  finishHabit(h,minXp,true);
+}
+function finishHabit(h,xpGain,isMinimum){
+  h.done=true;
+  let beforeLevel=level();
+  state.xp+=xpGain;
+  state.missedYesterday=false;
+  if(state.lastDay!==todayStr()){state.streak++;state.best=Math.max(state.best,state.streak);state.lastDay=todayStr()}
+  state.comboToday++;
+  checkUnlocks();
+  save();
+  let afterLevel=level();
+  let pack=h.sound||state.settings.soundPack;
+  if(afterLevel>beforeLevel){
+    playPack('achievement');
+    celebrate(true);
+    showLevelUp(afterLevel);
+  }else{
+    playPack(pack);
+    celebrate(false);
+    toast((isMinimum?'✅ Small win counted! +':'✨ +')+xpGain+' XP');
+  }
+  maybeCombo();
+  render();
+}
+function maybeCombo(){
+  const thresholds=[3,5,8];
+  for(const t of thresholds){
+    if(state.comboToday>=t && !state.comboBonusGiven[t]){
+      state.comboBonusGiven[t]=true;
+      let bonus=t*5;
+      state.xp+=bonus;
+      playPack('sparkle');
+      setTimeout(()=>toast('🔥 COMBO x'+t+'! +'+bonus+' bonus XP'),650);
+      save();
+    }
+  }
+}
+function checkUnlocks(){
+  let l=level();
+  if(l>=3&&!state.unlockedSounds.includes('Coin'))state.unlockedSounds.push('Coin');
+  if(l>=5&&!state.unlockedThemes.includes('Galaxy'))state.unlockedThemes.push('Galaxy');
+  if(l>=7&&!state.unlockedSounds.includes('Achievement'))state.unlockedSounds.push('Achievement');
+  if(l>=10&&!state.unlockedThemes.includes('Cyberpunk'))state.unlockedThemes.push('Cyberpunk');
+}
+function showLevelUp(l){
+  if(!state.settings.anim){toast('🏆 LEVEL '+l+'!');return}
+  document.getElementById('luLevel').textContent='LEVEL '+l;
+  let rewardMsg='Keep going — new rewards ahead.';
+  if(l===3)rewardMsg='🔊 New sound unlocked: Coin';
+  if(l===5)rewardMsg='🎨 New theme unlocked: Galaxy';
+  if(l===7)rewardMsg='🔊 New sound unlocked: Achievement';
+  if(l===10)rewardMsg='🎨 New theme unlocked: Cyberpunk';
+  document.getElementById('luReward').textContent=rewardMsg;
+  document.getElementById('levelupScreen').style.display='flex';
+}
+function celebrate(big){
+  if(!state.settings.anim)return;
+  let c=document.getElementById('confetti');c.innerHTML='';
+  let n=big?60:26;
+  for(let i=0;i<n;i++){let p=document.createElement('i');p.className='piece';p.style.left=Math.random()*100+'%';p.style.top=(10+Math.random()*20)+'%';p.style.background=['#7c5cff','#48e6a1','#ffc857','#ff8a3d','#fff'][i%5];p.style.animationDelay=Math.random()*150+'ms';c.appendChild(p)}
+  setTimeout(()=>c.innerHTML='',1200);
+}
+function toast(t){let x=document.getElementById('toast');x.textContent=t;x.classList.add('show');clearTimeout(window._toastT);window._toastT=setTimeout(()=>x.classList.remove('show'),1800)}
+
+/* ============ SHEET (generic modal) ============ */
+function openSheet(html){document.getElementById('sheetBody').innerHTML=html;document.getElementById('sheetModal').style.display='flex'}
+function closeSheet(){document.getElementById('sheetModal').style.display='none'}
+
+/* ============ TAB NAV ============ */
+function setTab(t){tab=t;render()}
+function renderTabbar(){
+  let all=FIXED_TABS.slice(0,6).concat(state.customTabs.map(c=>({id:'custom:'+c.id,label:c.name,icon:c.icon||'📌'}))).concat([FIXED_TABS[6]]);
+  document.getElementById('tabbarin').innerHTML=all.map(tb=>
+    `<button class="tabbtn ${tab===tb.id?'active':''}" onclick="setTab('${tb.id}')"><span class="ico">${tb.icon}</span>${tb.label}</button>`
+  ).join('')+'<button class="addtabbtn" onclick="formAddTab()" title="Add tab">+</button>';
+}
+
+/* ============ EXCEL DATE HEADER ============ */
+function excelBar(iso){
+  return `<div class="excelbar"><span class="excelday">${dayNameShort(iso)}</span><span class="exceldate">${dayNameLong(iso)}, ${fmtDate(iso)}</span></div>`;
+}
+function dateNav(){
+  return `<div class="datenav">
+    <button onclick="shiftDate(-1)">‹</button>
+    <input type="date" value="${state.viewDate}" onchange="jumpDate(this.value)">
+    <button onclick="shiftDate(1)">›</button>
+    <button class="todaybtn" onclick="goToday()">Today</button>
+  </div>`;
+}
+function shiftDate(n){state.viewDatePinnedManually=true;state.viewDate=addDays(state.viewDate,n);save();render()}
+function jumpDate(v){if(!v)return;state.viewDatePinnedManually=true;state.viewDate=v;save();render()}
+function goToday(){state.viewDatePinnedManually=false;state.viewDate=todayStr();save();render()}
+
+/* ============ RENDER DISPATCH ============ */
+function render(){
+  renderTabbar();
+  let html='';
+  if(tab==='habits')html=renderHabits();
+  else if(tab==='appointments')html=renderAppointments();
+  else if(tab==='urgent')html=renderTaskList('urgentTasks','Urgent Tasks','⚡','Nothing urgent — nice.');
+  else if(tab==='alltasks')html=renderTaskList('allTasks','All Tasks','☰','Your task list is empty.');
+  else if(tab==='yeargoal')html=renderYearGoals();
+  else if(tab==='finance')html=renderFinance();
+  else if(tab==='more')html=renderMore();
+  else if(tab.startsWith('custom:'))html=renderCustomTab(tab.slice(7));
+  document.getElementById('main').innerHTML=html;
+  document.getElementById('fab').style.display=(tab==='more')?'none':'flex';
+}
+
+/* ============ HABITS TAB ============ */
+function renderHabits(){
+  const isToday=state.viewDate===todayStr();
+  const isFuture=state.viewDate>todayStr();
+  let banner='';
+  if(isToday && state.missedYesterday){
+    banner=`<div class="banner"><b>Yesterday wasn't your day.</b><span class="small">No problem. Let's get one win today — your momentum is still ${state.streak} day${state.streak===1?'':'s'} strong at heart.</span></div>`;
+  }
+  let body='';
+  if(isToday){
+    let done=state.habits.filter(h=>h.done).length;
+    const totalW=state.habits.reduce((a,h)=>a+(h.weight||1),0)||1;
+    const doneW=state.habits.filter(h=>h.done).reduce((a,h)=>a+(h.weight||1),0);
+    let p=doneW/totalW,l=level(),lp=state.xp%100;
+    body=`
+    <div class="card level"><div class="row"><div><div class="eyebrow">CURRENT LEVEL</div><div class="levelnum">LEVEL ${l}</div></div><div class="badge">${l}</div></div><div style="height:16px"></div><div class="bar"><div class="fill" style="width:${lp}%"></div></div><div class="row" style="margin-top:8px"><span class="small">${lp} / 100 XP</span><span class="gold" style="font-weight:1000">${state.xp} TOTAL XP</span></div></div>
+    <div class="card"><div class="row"><span class="eyebrow">TODAY</span><span class="bigpct">${Math.round(p*100)}%</span></div><div style="height:10px"></div><div class="bar"><div class="fill" style="width:${p*100}%"></div></div></div>
+    <div class="section"><span>TODAY'S HABITS</span><span class="small">${done}/${state.habits.length}${state.comboToday>=3?' • 🔥 x'+state.comboToday:''}</span></div>
+    ${state.habits.length===0?emptyState('🌱','No habits yet — tap + to add your first one.'):state.habits.map(h=>`<div class="habit ${h.done?'done':''}">
+      <div class="habitmain" onclick="complete('${h.id}')">
+        <div class="emoji">${h.done?'✓':h.emoji}</div>
+        <div class="habitrow">
+          <div class="habitname">${h.name}</div>
+          <div class="tags"><span class="tag">${h.category||'General'}</span><span class="tag">weight ${h.weight||1}</span></div>
+          ${(!h.done && h.minMin) ? `<button class="minbtn" onclick="event.stopPropagation();completeMinimum('${h.id}')">Too hard today? Do ${h.minMin} min instead</button>` : `<div class="small">${h.done?'COMPLETED • NICE WORK':'Tap when done'}</div>`}
+        </div>
+      </div>
+      <div class="iconbtns">
+        <span class="xp">+${h.xp}</span>
+        <button onclick="formAddHabit('${h.id}')">✏️</button>
+        <button onclick="deleteHabit('${h.id}')">🗑</button>
+      </div>
+    </div>`).join('')}
+    <div class="card momentum"><div class="row"><div><div class="eyebrow">MOMENTUM</div><div style="font-size:23px;font-weight:1000">${state.streak} day${state.streak===1?'':'s'}</div><div class="small">Best: ${state.best} days</div></div><div class="fire">🔥</div></div></div>`;
+  }else if(isFuture){
+    body=`<div class="emptystate"><div class="big">📆</div>This day hasn't happened yet.<br>Here's what's scheduled to repeat:</div>
+    ${state.habits.map(h=>`<div class="habit disabled"><div class="habitmain"><div class="emoji">${h.emoji}</div><div class="habitrow"><div class="habitname">${h.name}</div><div class="tags"><span class="tag">${h.category||'General'}</span></div></div></div><span class="xp">+${h.xp}</span></div>`).join('')}`;
+  }else{
+    let rec=state.history[state.viewDate];
+    if(!rec){
+      body=emptyState('🕳️','No record was saved for this day.');
+    }else{
+      body=`<div class="card"><div class="row"><span class="eyebrow">DAY COMPLETION</span><span class="bigpct">${rec.percent}%</span></div><div style="height:10px"></div><div class="bar"><div class="fill" style="width:${rec.percent}%"></div></div></div>
+      <div class="section"><span>HABITS THAT DAY</span></div>
+      ${rec.habits.map(h=>`<div class="habit ${h.done?'done':''} disabled"><div class="habitmain"><div class="emoji">${h.done?'✓':'○'}</div><div class="habitrow"><div class="habitname">${h.name}</div></div></div></div>`).join('')}`;
+    }
+  }
+  return excelBar(state.viewDate)+dateNav()+banner+body;
+}
+function emptyState(icon,text){return `<div class="emptystate"><div class="big">${icon}</div>${text}</div>`}
+function deleteHabit(id){if(!confirm('Delete this habit? Its past history stays in your records.'))return;state.habits=state.habits.filter(h=>h.id!==id);save();render()}
+
+/* ============ ADD/EDIT HABIT FORM ============ */
+function formAddHabit(editId){
+  let h=editId?state.habits.find(x=>x.id===editId):null;
+  let soundOptions=`<option value="">Use default sound</option>`+Object.keys(SOUND_PACKS).map(k=>`<option value="${k}" ${h&&h.sound===k?'selected':''}>${SOUND_PACKS[k].label}</option>`).join('');
+  let catOptions=CATEGORIES.map(c=>`<option ${h&&h.category===c?'selected':''}>${c}</option>`).join('');
+  openSheet(`
+  <h2>${editId?'EDIT HABIT':'ADD HABIT'}</h2>
+  <label>Habit name</label><input id="hn" placeholder="e.g. Read 10 pages" value="${h?h.name:''}">
+  <label>Emoji</label><input id="he" value="${h?h.emoji:'⭐'}">
+  <label>Category</label><select id="hc">${catOptions}</select>
+  <label>Difficulty (auto-sets XP)</label><select id="hd" onchange="document.getElementById('hx').value=this.value">
+    <option value="5" ${h&&h.xp==5?'selected':''}>Easy</option>
+    <option value="10" ${!h||h.xp==10?'selected':''}>Medium</option>
+    <option value="20" ${h&&h.xp==20?'selected':''}>Hard</option>
+    <option value="30" ${h&&h.xp==30?'selected':''}>Very Hard</option>
+  </select>
+  <label>XP reward (editable)</label><input id="hx" type="number" value="${h?h.xp:10}">
+  <label>Weight — how much it counts toward today's % (1-10)</label><input id="hw" type="number" min="1" max="10" value="${h?h.weight||5:5}">
+  <label>Normal target (minutes)</label><input id="hnorm" type="number" value="${h?h.normMin:20}">
+  <label>Minimum version (minutes)</label><input id="hmin" type="number" value="${h?h.minMin:5}">
+  <label>Completion sound</label><select id="hs">${soundOptions}</select>
+  <div style="display:flex;gap:10px"><button class="btn" onclick="saveHabitForm('${editId||''}')">${editId?'SAVE':'ADD HABIT'}</button><button class="btn ghost" onclick="closeSheet()">CANCEL</button></div>
+  `);
+}
+function saveHabitForm(editId){
+  let n=document.getElementById('hn').value.trim();if(!n)return;
+  let data={
+    name:n,
+    emoji:document.getElementById('he').value.trim()||'⭐',
+    category:document.getElementById('hc').value,
+    xp:+document.getElementById('hx').value||10,
+    weight:Math.max(1,Math.min(10,+document.getElementById('hw').value||5)),
+    normMin:+document.getElementById('hnorm').value||0,
+    minMin:+document.getElementById('hmin').value||0,
+    sound:document.getElementById('hs').value
+  };
+  const doSave=()=>{
+    if(editId){
+      let h=state.habits.find(x=>x.id===editId);
+      Object.assign(h,data);
+    }else{
+      state.habits.push(Object.assign({id:uid(),done:false},data));
+    }
+    save();closeSheet();render();toast(editId?'✅ Habit updated':'⭐ New habit added');
+  };
+  if(!editId && state.habits.length>=MAX_ACTIVE){
+    if(confirm(`You currently have ${state.habits.length} active habits. Adding more can make today harder to complete.\n\nOK = Add anyway\nCancel = Go back`)){doSave()}
+  }else{doSave()}
+}
+
+/* ============ APPOINTMENTS TAB ============ */
+function renderAppointments(){
+  let list=state.appointments.filter(a=>a.date===state.viewDate).sort((a,b)=>(a.time||'').localeCompare(b.time||''));
+  let body=list.length===0?emptyState('📅','No appointments on this day.'):list.map(a=>`
+    <div class="listrow"><div class="checkcirc" style="border:0;background:#232c54;color:#c9cdfb;font-size:11px;width:50px;border-radius:10px">${a.time||'--:--'}</div><div style="flex:1"><div class="lname">${a.title}</div>${a.note?`<div class="small">${a.note}</div>`:''}</div><button class="delbtn" onclick="delAppointment('${a.id}')">🗑</button></div>
+  `).join('');
+  return excelBar(state.viewDate)+dateNav()+`<div class="section"><span>APPOINTMENTS</span></div>`+body;
+}
+function formAddAppointment(){
+  openSheet(`<h2>NEW APPOINTMENT</h2>
+  <label>Date</label><input id="apd" type="date" value="${state.viewDate}">
+  <label>Time</label><input id="apt" type="time">
+  <label>Title</label><input id="apn" placeholder="e.g. Dentist">
+  <label>Note</label><textarea id="apo" placeholder="Optional details"></textarea>
+  <div style="display:flex;gap:10px"><button class="btn" onclick="saveAppointment()">ADD</button><button class="btn ghost" onclick="closeSheet()">CANCEL</button></div>`);
+}
+function saveAppointment(){
+  let title=document.getElementById('apn').value.trim();if(!title)return;
+  state.appointments.push({id:uid(),date:document.getElementById('apd').value||state.viewDate,time:document.getElementById('apt').value,title,note:document.getElementById('apo').value.trim()});
+  save();closeSheet();render();toast('📅 Appointment added');
+}
+function delAppointment(id){if(!confirm('Delete this appointment?'))return;state.appointments=state.appointments.filter(a=>a.id!==id);save();render()}
+
+/* ============ GENERIC TASK LIST (Urgent / All Tasks) ============ */
+function renderTaskList(key,title,icon,emptyMsg){
+  let items=state[key]||[];
+  let pending=items.filter(i=>!i.done),done=items.filter(i=>i.done);
+  let body='';
+  if(items.length===0){body=emptyState(icon,emptyMsg)}
+  else{
+    body=pending.concat(done).map(i=>`
+      <div class="listrow ${i.done?'done':''}">
+        <div class="checkcirc" onclick="toggleTask('${key}','${i.id}')">${i.done?'✓':''}</div>
+        <div style="flex:1"><div class="lname">${i.text}</div>${i.due?`<div class="ldue">Due ${fmtDate(i.due)}</div>`:''}</div>
+        <button class="delbtn" onclick="delTask('${key}','${i.id}')">🗑</button>
+      </div>`).join('');
+  }
+  return excelBar(todayStr())+`<div class="section"><span>${title.toUpperCase()}</span><span class="small">${pending.length} pending</span></div>`+body;
+}
+function toggleTask(key,id){let it=state[key].find(x=>x.id===id);it.done=!it.done;save();render()}
+function delTask(key,id){if(!confirm('Delete this task?'))return;state[key]=state[key].filter(x=>x.id!==id);save();render()}
+function formAddTask(key,label){
+  openSheet(`<h2>${label}</h2>
+  <label>Task</label><input id="tkn" placeholder="What needs to get done?">
+  <label>Due date (optional)</label><input id="tkd" type="date">
+  <div style="display:flex;gap:10px"><button class="btn" onclick="saveTask('${key}')">ADD</button><button class="btn ghost" onclick="closeSheet()">CANCEL</button></div>`);
+}
+function saveTask(key){
+  let text=document.getElementById('tkn').value.trim();if(!text)return;
+  state[key].push({id:uid(),text,done:false,due:document.getElementById('tkd').value,createdAt:todayStr()});
+  save();closeSheet();render();toast('📝 Task added');
+}
+
+/* ============ YEAR GOALS ============ */
+function renderYearGoals(){
+  let goals=state.yearGoals;
+  let body=goals.length===0?emptyState('🎯','No goals yet — set your first one for this year.'):goals.map(g=>`
+    <div class="card goalcard">
+      <div class="row"><h3 style="margin:0">${g.title}</h3><button class="delbtn" onclick="delGoal('${g.id}')">🗑</button></div>
+      ${g.notes?`<div class="small" style="margin-bottom:8px">${g.notes}</div>`:''}
+      <div class="bar"><div class="fill" style="width:${g.progress}%"></div></div>
+      <div class="row" style="margin-top:6px"><span class="small">${g.progress}% complete</span><input type="range" min="0" max="100" value="${g.progress}" style="width:120px" oninput="updateGoalProgress('${g.id}',this.value)"></div>
+      ${(g.milestones||[]).map(m=>`<div class="milestone ${m.done?'done':''}" onclick="toggleMilestone('${g.id}','${m.id}')" style="cursor:pointer">${m.done?'✓':'○'} ${m.text}</div>`).join('')}
+      <button class="minbtn" style="margin-top:8px" onclick="formAddMilestone('${g.id}')">+ add milestone</button>
+    </div>`).join('');
+  return excelBar(todayStr())+`<div class="section"><span>YEAR GOALS</span></div>`+body;
+}
+function formAddGoal(){
+  openSheet(`<h2>NEW YEAR GOAL</h2>
+  <label>Goal title</label><input id="gn" placeholder="e.g. Learn Flutter">
+  <label>Notes</label><textarea id="gd" placeholder="Why this matters, what success looks like"></textarea>
+  <div style="display:flex;gap:10px"><button class="btn" onclick="saveGoal()">ADD GOAL</button><button class="btn ghost" onclick="closeSheet()">CANCEL</button></div>`);
+}
+function saveGoal(){
+  let title=document.getElementById('gn').value.trim();if(!title)return;
+  state.yearGoals.push({id:uid(),title,notes:document.getElementById('gd').value.trim(),progress:0,milestones:[]});
+  save();closeSheet();render();toast('🎯 Goal added');
+}
+function updateGoalProgress(id,val){let g=state.yearGoals.find(x=>x.id===id);g.progress=+val;save();
+  document.querySelectorAll('.goalcard').forEach(()=>{});render();}
+function delGoal(id){if(!confirm('Delete this goal?'))return;state.yearGoals=state.yearGoals.filter(g=>g.id!==id);save();render()}
+function formAddMilestone(goalId){
+  openSheet(`<h2>ADD MILESTONE</h2><label>Milestone</label><input id="mtn" placeholder="e.g. Finish course chapter 1">
+  <div style="display:flex;gap:10px"><button class="btn" onclick="saveMilestone('${goalId}')">ADD</button><button class="btn ghost" onclick="closeSheet()">CANCEL</button></div>`);
+}
+function saveMilestone(goalId){
+  let text=document.getElementById('mtn').value.trim();if(!text)return;
+  let g=state.yearGoals.find(x=>x.id===goalId);
+  g.milestones=g.milestones||[];g.milestones.push({id:uid(),text,done:false});
+  save();closeSheet();render();
+}
+function toggleMilestone(goalId,mId){let g=state.yearGoals.find(x=>x.id===goalId);let m=g.milestones.find(x=>x.id===mId);m.done=!m.done;save();render()}
+
+/* ============ FINANCIAL PLAN ============ */
+function renderFinance(){
+  let entries=state.finance.entries.slice().sort((a,b)=>b.date.localeCompare(a.date));
+  let income=entries.filter(e=>e.type==='income').reduce((a,e)=>a+e.amount,0);
+  let expense=entries.filter(e=>e.type==='expense').reduce((a,e)=>a+e.amount,0);
+  let balance=income-expense;
+  let body=entries.length===0?emptyState('💰','No entries yet — log your first income or expense.'):entries.map(e=>`
+    <div class="finrow"><div><div class="lname" style="font-weight:750">${e.desc}</div><div class="small">${fmtDate(e.date)}</div></div><div style="display:flex;align-items:center;gap:10px"><span class="finamt ${e.type}">${e.type==='income'?'+':'-'}${e.amount}</span><button class="delbtn" onclick="delFinance('${e.id}')">🗑</button></div></div>
+  `).join('');
+  return excelBar(todayStr())+
+  `<div class="summarygrid">
+    <div class="box"><div class="small">Income</div><div class="v green">${income}</div></div>
+    <div class="box"><div class="small">Expenses</div><div class="v red">${expense}</div></div>
+    <div class="box"><div class="small">Balance</div><div class="v ${balance>=0?'green':'red'}">${balance}</div></div>
+  </div>
+  <div class="section"><span>ENTRIES</span></div>`+body;
+}
+function formAddFinance(){
+  openSheet(`<h2>NEW ENTRY</h2>
+  <label>Type</label><select id="fty"><option value="income">Income</option><option value="expense" selected>Expense</option></select>
+  <label>Description</label><input id="fde" placeholder="e.g. Groceries">
+  <label>Amount</label><input id="fam" type="number" step="0.01" placeholder="0.00">
+  <label>Date</label><input id="fda" type="date" value="${todayStr()}">
+  <div style="display:flex;gap:10px"><button class="btn" onclick="saveFinance()">ADD</button><button class="btn ghost" onclick="closeSheet()">CANCEL</button></div>`);
+}
+function saveFinance(){
+  let desc=document.getElementById('fde').value.trim();let amount=+document.getElementById('fam').value;
+  if(!desc||!amount)return;
+  state.finance.entries.push({id:uid(),type:document.getElementById('fty').value,desc,amount,date:document.getElementById('fda').value||todayStr()});
+  save();closeSheet();render();toast('💰 Entry added');
+}
+function delFinance(id){if(!confirm('Delete this entry?'))return;state.finance.entries=state.finance.entries.filter(e=>e.id!==id);save();render()}
+
+/* ============ CUSTOM TABS ============ */
+function formAddTab(){
+  openSheet(`<h2>NEW TAB</h2>
+  <label>Tab name</label><input id="ctn" placeholder="e.g. Groceries">
+  <label>Icon (emoji)</label><input id="cti" value="📌">
+  <div style="display:flex;gap:10px"><button class="btn" onclick="saveCustomTab()">CREATE TAB</button><button class="btn ghost" onclick="closeSheet()">CANCEL</button></div>`);
+}
+function saveCustomTab(){
+  let name=document.getElementById('ctn').value.trim();if(!name)return;
+  let id=uid();
+  state.customTabs.push({id,name,icon:document.getElementById('cti').value.trim()||'📌',items:[]});
+  save();closeSheet();setTab('custom:'+id);toast('📌 Tab created');
+}
+function renderCustomTab(id){
+  let ct=state.customTabs.find(c=>c.id===id);
+  if(!ct)return emptyState('❓','This tab was removed.');
+  let items=ct.items||[];
+  let body=items.length===0?emptyState(ct.icon,'This list is empty.'):items.map(i=>`
+    <div class="listrow ${i.done?'done':''}">
+      <div class="checkcirc" onclick="toggleCustomItem('${id}','${i.id}')">${i.done?'✓':''}</div>
+      <div style="flex:1"><div class="lname">${i.text}</div></div>
+      <button class="delbtn" onclick="delCustomItem('${id}','${i.id}')">🗑</button>
+    </div>`).join('');
+  return excelBar(todayStr())+`<div class="section"><span>${ct.name.toUpperCase()}</span><button class="delbtn" onclick="delCustomTab('${id}')" title="Delete this whole tab">🗑 delete tab</button></div>`+body;
+}
+function formAddCustomItem(tabId){
+  openSheet(`<h2>ADD ITEM</h2><label>Item</label><input id="cin" placeholder="Type here...">
+  <div style="display:flex;gap:10px"><button class="btn" onclick="saveCustomItem('${tabId}')">ADD</button><button class="btn ghost" onclick="closeSheet()">CANCEL</button></div>`);
+}
+function saveCustomItem(tabId){
+  let text=document.getElementById('cin').value.trim();if(!text)return;
+  let ct=state.customTabs.find(c=>c.id===tabId);
+  ct.items.push({id:uid(),text,done:false});
+  save();closeSheet();render();
+}
+function toggleCustomItem(tabId,itemId){let ct=state.customTabs.find(c=>c.id===tabId);let it=ct.items.find(x=>x.id===itemId);it.done=!it.done;save();render()}
+function delCustomItem(tabId,itemId){let ct=state.customTabs.find(c=>c.id===tabId);ct.items=ct.items.filter(x=>x.id!==itemId);save();render()}
+function delCustomTab(tabId){if(!confirm('Delete this whole tab and everything in it?'))return;state.customTabs=state.customTabs.filter(c=>c.id!==tabId);setTab('habits')}
+
+/* ============ FAB DISPATCH ============ */
+function handleFab(){
+  if(tab==='habits')formAddHabit();
+  else if(tab==='appointments')formAddAppointment();
+  else if(tab==='urgent')formAddTask('urgentTasks','NEW URGENT TASK');
+  else if(tab==='alltasks')formAddTask('allTasks','NEW TASK');
+  else if(tab==='yeargoal')formAddGoal();
+  else if(tab==='finance')formAddFinance();
+  else if(tab.startsWith('custom:'))formAddCustomItem(tab.slice(7));
+}
+
+/* ============ MORE TAB: rewards, quests, history, settings, backup, reset ============ */
+function renderMore(){
+  let daily=Math.min(4,state.habits.filter(h=>h.done).length);
+  let weekly=Math.min(25,Math.floor(state.xp/10));
+  let mom=Math.min(7,state.streak);
+  if(daily>=4 && state.questClaimedFor!==todayStr()){
+    state.questClaimedFor=todayStr();state.xp+=50;save();
+    setTimeout(()=>toast('🎉 QUEST COMPLETE! +50 XP'),200);
+  }
+  let l=level();
+  return `
+  <div class="section"><span>QUESTS</span></div>
+  ${questCard('⚡','DAILY QUEST','Complete 4 habits',daily,4,50)}
+  ${questCard('🏆','WEEKLY CHALLENGE','Complete 25 tasks this week',weekly,25,250)}
+  ${questCard('🔥','MOMENTUM QUEST','Reach a 7 day momentum',mom,7,100)}
+
+  <div class="section"><span>REWARDS</span><span class="small">Level ${l}</span></div>
+  ${rewardRow('Midnight',1,state.unlockedThemes)}
+  ${rewardRow('Galaxy',5,state.unlockedThemes)}
+  ${rewardRow('Cyberpunk',10,state.unlockedThemes)}
+  ${rewardRow('Classic Ding',1,state.unlockedSounds)}
+  ${rewardRow('Coin',3,state.unlockedSounds)}
+  ${rewardRow('Achievement',7,state.unlockedSounds)}
+
+  <div class="section"><span>HISTORY</span></div>
+  <div class="morebtn" onclick="openHistory()"><span>📜 View past days</span><span>›</span></div>
+
+  <div class="section"><span>SETTINGS</span></div>
+  <div class="toggle"><div><b>Sound effects</b><div class="small">Play a sound on completion</div></div><div class="switch ${state.settings.sound?'on':''}" onclick="toggleSetting('sound')"><i></i></div></div>
+  <div class="toggle"><div><b>Full animations</b><div class="small">Confetti & level-up screens</div></div><div class="switch ${state.settings.anim?'on':''}" onclick="toggleSetting('anim')"><i></i></div></div>
+  <label style="margin-top:12px">Achievement sound</label>
+  <div style="display:flex;gap:8px">
+    <select id="soundPackSel" onchange="setSoundPack(this.value)" style="flex:1">${Object.keys(SOUND_PACKS).map(k=>`<option value="${k}" ${state.settings.soundPack===k?'selected':''}>${SOUND_PACKS[k].label}</option>`).join('')}</select>
+    <button class="btn ghost" onclick="previewSound(document.getElementById('soundPackSel').value)">▶ Preview</button>
+  </div>
+
+  <div class="section"><span>BACKUP</span></div>
+  <div class="morebtn" onclick="doExport()"><span>⬇️ Export backup (.json)</span><span>›</span></div>
+  <div class="morebtn" onclick="document.getElementById('importFile').click()"><span>⬆️ Import backup</span><span>›</span></div>
+
+  <div class="section"><span class="red">DANGER ZONE</span></div>
+  <button class="btn danger block" style="margin-top:6px" onclick="startFullReset()">↻ Reset everything</button>
+  <div class="small" style="margin-top:8px;text-align:center">This deletes all habits, tasks, appointments, goals, and finance history on this device.</div>
+  `;
+}
+function questCard(icon,title,sub,v,max,reward){return `<div class="quest"><div class="eyebrow">${icon} ${title}</div><h3 style="margin:6px 0">${sub}</h3><div class="bar"><div class="fill" style="width:${v/max*100}%"></div></div><div class="row" style="margin-top:8px"><span class="small">${v} / ${max}</span><span class="gold" style="font-weight:1000">REWARD +${reward} XP</span></div></div>`}
+function rewardRow(name,lv,arr){let ok=arr.includes(name);return `<div class="card reward"><div class="lock">${ok?'🔓':'🔒'}</div><div style="flex:1"><b>${name}</b><div class="small ${ok?'green':''}">${ok?'UNLOCKED':'Unlock at Level '+lv}</div></div>${ok?'<span class="green">✓</span>':''}</div>`}
+function toggleSetting(k){state.settings[k]=!state.settings[k];save();render()}
+function setSoundPack(v){state.settings.soundPack=v;save()}
+
+/* ---- History ---- */
+function openHistory(){
+  let days=Object.keys(state.history).sort().reverse();
+  let html=`<h2>HISTORY</h2>`;
+  if(days.length===0){html+=emptyState('🕰️','No past days recorded yet. Come back tomorrow!')}
+  else{
+    html+=days.map(d=>{
+      let rec=state.history[d];
+      return `<div class="historyday"><div class="row"><b>${dayNameLong(d)}, ${fmtDate(d)}</b><span class="gold" style="font-weight:900">${rec.percent}%</span></div>
+      ${rec.habits.map(h=>`<div class="historyhabit ${h.done?'ok':''}"><span>${h.done?'✓':'✗'} ${h.name}</span></div>`).join('')}
+      </div>`;
+    }).join('');
+  }
+  html+=`<button class="btn block" style="margin-top:14px" onclick="closeSheet()">CLOSE</button>`;
+  openSheet(html);
+}
+
+/* ---- Backup export/import ---- */
+function doExport(){
+  let blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
+  let url=URL.createObjectURL(blob);
+  let a=document.createElement('a');
+  a.href=url;a.download='life-rpg-backup-'+todayStr()+'.json';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+  toast('⬇️ Backup downloaded');
+}
+function doImport(ev){
+  let file=ev.target.files[0];if(!file)return;
+  let reader=new FileReader();
+  reader.onload=function(){
+    try{
+      let parsed=JSON.parse(reader.result);
+      if(!parsed || !parsed.habits){toast('That file does not look like a valid backup.');return}
+      if(!confirm('This will replace ALL current data on this device with the backup file. Continue?'))return;
+      localStorage.setItem(KEY,JSON.stringify(parsed));
+      toast('✅ Backup restored — reloading...');
+      setTimeout(()=>location.reload(),700);
+    }catch(e){toast('Could not read that file.')}
+  };
+  reader.readAsText(file);
+  ev.target.value='';
+}
+
+/* ---- Full reset (double confirmation) ---- */
+function startFullReset(){
+  openSheet(`<h2 class="red">RESET EVERYTHING?</h2>
+  <p class="small">This will permanently delete all your habits, tasks, appointments, goals, finance entries, custom tabs, and history on this device. Your XP and level will also go back to zero.</p>
+  <p class="small"><b>Consider exporting a backup first.</b></p>
+  <div style="display:flex;gap:10px;margin-top:10px">
+    <button class="btn danger" onclick="confirmFullReset1()">Continue</button>
+    <button class="btn ghost" onclick="closeSheet()">Cancel</button>
+  </div>`);
+}
+function confirmFullReset1(){
+  openSheet(`<h2 class="red">ARE YOU ABSOLUTELY SURE?</h2>
+  <p class="small">This is the final step. There is no undo. Everything will be wiped and you'll start from Level 1.</p>
+  <div style="display:flex;gap:10px;margin-top:10px">
+    <button class="btn danger" onclick="doFullReset()">Yes, delete everything</button>
+    <button class="btn ghost" onclick="closeSheet()">Cancel, keep my data</button>
+  </div>`);
+}
+function doFullReset(){
+  localStorage.removeItem(KEY);
+  localStorage.removeItem(OLDKEY);
+  closeSheet();
+  location.reload();
+}
+
+/* ============ INIT ============ */
+render();
+</script>
+</body></html>
